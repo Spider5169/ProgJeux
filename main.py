@@ -37,4 +37,6 @@ if __name__ == '__main__':
             JustePrix.justeprix()
         elif choix == 2 :
             Duel.duel()
+
+    print("Merci d'avoir joué, à bientôt.")
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
