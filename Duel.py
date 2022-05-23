@@ -18,7 +18,7 @@ def pile_face():
 
 
 # degats de l'attaque choisi
-def degat_choisi(attaque2, tour):
+def degat_choisi(attaque2, tour, special):
     if attaque2 == 1:
         degats = randint(2, 6)
         return degats
@@ -29,22 +29,64 @@ def degat_choisi(attaque2, tour):
         deg = (0, 5)
         degats = choice(deg)
         return degats
-    elif attaque2 == 4:
+    elif attaque2 == 4 :
         if tour < 4 :
             print("Vous avez raté votre coup !")
             degats = 0
             return degats
-        else :
+        elif special[0] == 1 :
             degats = randint(25,50)
+            return degats
+        elif special[1] == 2 :
+            degats = randint(-20,-5)
+            return degats
+        else :
+            print("Vous avez raté votre coup !")
+            degats = 0
+            return degats
+    elif special == (1,2) :
+        if attaque2 == 4 :
+            degats = randint(25,50)
+            return degats
+        if attaque2 == 5 :
+            degats = randint(-20,-5)
             return degats
     else:
         print("Vous avez raté votre coup !")
         degats = 0
         return degats
 
+#séparation attaque et coups spéciaux
+def coup_spe(tour):
+    liste_coup_spe = {
+        "Spécial": {
+            "min": 25,
+            "max": 50,
+            "chance": "- coup Ultime débloqué",
+        },
+        "Soins":{
+            "min": 5,
+            "max": 20,
+            "chance":"- soigne vos pts de vie.",
+        }
+    }
+    a = 3
+    if tour > 4 :
+        b = randint(1,4)
+        if b == 1 :
+            a += 1
+            print(a,": Coup Spécial","[",liste_coup_spe["Spécial"]["min"],"-",liste_coup_spe["Spécial"]["max"],"] pts de dégats",
+                  liste_coup_spe["Spécial"]["chance"])
+        c = randint(1,3)
+        if c == 2 :
+            a += 1
+            print(a,": Magie de Soin", "[", liste_coup_spe["Soins"]["min"], "-", liste_coup_spe["Soins"]["max"], "] pts de vie",
+                      liste_coup_spe["Soins"]["chance"])
+        return b,c
 
-#liste des attaques possibles, penser a rajouter dans degat_choisi
-def liste_attaque(tour):
+
+#liste des attaques possibles, penser a rajouter dans degat_choisi et modifier a de coup_spe
+def liste_attaque():
     liste_attaque = {
         "Poing":{
             "min":2,
@@ -61,42 +103,22 @@ def liste_attaque(tour):
             "max":5,
             "chance" : " - 50% de chance de réussir",
         },
-        "Spécial":{
-            "min":25,
-            "max":50,
-            "chance": "- coup Ultime débloqué"
-        }
     }
     a = 0
-    if tour > 4 :
-        for i,y in liste_attaque.items() :
-            b = randint(1,4)
-            if b <2 :
-                a += 1
-                print(a,": Coup de", i,"[",liste_attaque[i]["min"],"-",liste_attaque[i]["max"],"] pts de dégats",liste_attaque[i]["chance"])
-            elif a < 3 :
-                a += 1
-                print(a, ": Coup de", i, "[", liste_attaque[i]["min"], "-", liste_attaque[i]["max"], "] pts de dégats",
-                      liste_attaque[i]["chance"])
-            else:
-                break
-    else :
-        for i,y in liste_attaque.items() :
-            if a < 3 :
-                a += 1
-                print(a,": Coup de", i,"[",liste_attaque[i]["min"],"-",liste_attaque[i]["max"],"] pts de dégats",liste_attaque[i]["chance"])
-            else :
-                break
+    for i,y in liste_attaque.items() :
+        a += 1
+        print(a,": Coup de", i,"[",liste_attaque[i]["min"],"-",liste_attaque[i]["max"],"] pts de dégats",liste_attaque[i]["chance"])
 
 
 # on choisi l'attaque que l'on lance
 def attack(tour):
     print("Choisissez une attaque :")
-    liste_attaque(tour)
+    liste_attaque()
+    special = coup_spe(tour)
     atta = input("Choix :")
     try :
         attaque = int(atta)
-        return degat_choisi(attaque, tour)
+        return degat_choisi(attaque, tour, special)
     except :
         return attack()
 
@@ -125,26 +147,34 @@ def tour_att(hp_j1, hp_j2, commence, joueur1, joueur2):
             j_def = joueur1
         print("Attaque de :", j_att)
         degat_subit = attack(tour)
-        if (commence % 2) == 0:
-            hp_j1 -= degat_subit
-            print(degat_subit, "pts de dégats, il reste", hp_j1, "pts de vie à", j_def)
-        else:
-            hp_j2 -= degat_subit
-            print(degat_subit, "pts de dégats, il reste", hp_j2, "pts de vie à", j_def)
+        if degat_subit >= 0 :
+            if (commence % 2) == 0:
+                hp_j1 -= degat_subit
+                print(degat_subit, "pts de dégats, il reste", hp_j1, "pts de vie à", j_def)
+            else:
+                hp_j2 -= degat_subit
+                print(degat_subit, "pts de dégats, il reste", hp_j2, "pts de vie à", j_def)
+        elif degat_subit < 0 :
+            if (commence % 2) == 0:
+                hp_j2 -= degat_subit
+                print(-degat_subit, "pts de Vie,", j_att, "a",hp_j2,"pts de vie maintenant.")
+            else:
+                hp_j1 -= degat_subit
+                print(-degat_subit, "pts de Vie,", j_att, "a",hp_j1,"pts de vie maintenant.")
         tour += 1
         commence += 1
         print("Fin du tour :", tour, "\n")
     return tour
 
-#choisir nombre de PV pour ralonger parties
+#choisir nombre de PV pour rallonger parties
 def pts_de_vie(default):
-    hp = input("Combien de Points de vie ont les joueurs ? (par défaut 10, max 50)")
+    hp = input("Combien de Points de vie ont les joueurs ? (par défaut 10, max 50)\n")
     try :
         pts = int(hp)
         if 1 < pts < 51 :
             return pts
         else :
-            print ("Erreur, HP par défaut appliqués")
+            print ("Erreur, HP par défaut appliqués (10)")
             pts = default
             return  pts
     except :
