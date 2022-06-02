@@ -1,5 +1,38 @@
 from random import *
 
+liste_attaques = {
+    "1": {
+        "nom": "poing",
+        "min": 2,
+        "max": 6,
+        "chance": ""
+    },
+    "2": {
+        "nom": "pied",
+        "min": 0,
+        "max": 9,
+        "chance": ""
+    },
+    "3": {
+        "nom": "tête",
+        "min": 5,
+        "max": 5,
+        "chance": " - 50% de chance de réussir",
+    },
+}
+liste_coup_spe = {
+    "Spécial": {
+        "min": 25,
+        "max": 50,
+        "chance": "- coup Ultime débloqué",
+    },
+    "Soins": {
+        "min": 5,
+        "max": 20,
+        "chance": "- soigne vos pts de vie.",
+    }
+}
+
 
 # on donne un nom aux joueurs
 def nom_joueur(name):
@@ -18,17 +51,16 @@ def pile_face():
 
 
 # degats de l'attaque choisi
-def degat_choisi(attaque2, tour, special):
-    if attaque2 == 1:
-        degats = randint(2, 6)
-        return degats
-    elif attaque2 == 2:
-        degats = randint(0, 8)
-        return degats
-    elif attaque2 == 3:
-        deg = (0, 5)
-        degats = choice(deg)
-        return degats
+def degat_choisi(attaque0, tour, special):
+    global liste_attaques, liste_coup_spe
+    attaque2 = int(attaque0)
+    if 0 < attaque2 < 4 :
+        if attaque2 == 3 :
+            degats = choice([0,5])
+            return degats
+        else :
+            degats = randint(liste_attaques[attaque0]["min"], liste_attaques[attaque0]["max"])
+            return degats
     elif attaque2 == 4 :
         if tour < 4 :
             print("Vous avez raté votre coup !")
@@ -58,18 +90,7 @@ def degat_choisi(attaque2, tour, special):
 
 #séparation attaque et coups spéciaux
 def coup_spe(tour):
-    liste_coup_spe = {
-        "Spécial": {
-            "min": 25,
-            "max": 50,
-            "chance": "- coup Ultime débloqué",
-        },
-        "Soins":{
-            "min": 5,
-            "max": 20,
-            "chance":"- soigne vos pts de vie.",
-        }
-    }
+    global liste_coup_spe
     a = 3
     if tour > 4 :
         b = randint(1,4)
@@ -87,27 +108,12 @@ def coup_spe(tour):
 
 #liste des attaques possibles, penser a rajouter dans degat_choisi et modifier a de coup_spe
 def liste_attaque():
-    liste_attaque = {
-        "Poing":{
-            "min":2,
-            "max":6,
-            "chance" : ""
-        },
-        "Pied":{
-            "min":0,
-            "max":9,
-            "chance" : ""
-        },
-        "Tête":{
-            "min":5,
-            "max":5,
-            "chance" : " - 50% de chance de réussir",
-        },
-    }
+    global liste_attaques
     a = 0
-    for i,y in liste_attaque.items() :
+    for i,y in liste_attaques.items() :
         a += 1
-        print(a,": Coup de", i,"[",liste_attaque[i]["min"],"-",liste_attaque[i]["max"],"] pts de dégats",liste_attaque[i]["chance"])
+        print(a,": Coup de", i,"[",liste_attaques[i]["min"],"-",liste_attaques[i]["max"],"] pts de dégats",
+              liste_attaques[i]["chance"])
 
 
 # on choisi l'attaque que l'on lance
@@ -116,12 +122,14 @@ def attack(tour):
     liste_attaque()
     special = coup_spe(tour)
     atta = input("Choix :")
+    return degat_choisi(atta, tour, special)
+'''
     try :
-        attaque = int(atta)
+        attaque = atta
         return degat_choisi(attaque, tour, special)
     except :
-        return attack()
-
+        return attack(tour)
+'''
 
 # pour alterner qui attaque
 def commence_tour(commence):
