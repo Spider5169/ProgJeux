@@ -4,6 +4,7 @@ import JustePrix
 
 # Press Maj+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import Versus
 
 
 def print_hi():
@@ -14,7 +15,7 @@ def print_hi():
 
 
 #liste des jeux
-liste_jeux = ["le Juste Prix", "Duel",]
+liste_jeux = ["le Juste Prix", "Duel","Versus"]
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -37,6 +38,8 @@ if __name__ == '__main__':
             JustePrix.justeprix()
         elif choix == 2 :
             Duel.duel()
+        elif choix == 3 :
+            Versus.versus()
 
     print("Merci d'avoir joué, à bientôt.")
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

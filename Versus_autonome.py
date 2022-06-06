@@ -1,4 +1,3 @@
-import Duel
 from random import *
 
 liste_attaques = {
@@ -49,7 +48,7 @@ liste_att_magic = {
         "min": 25,
         "max": 50,
         "chance": "- coup Ultime débloqué",
-        "temp": randint(1, 5),
+        "temp": randint(1, 10),
     },
 }
 
@@ -105,6 +104,10 @@ class Player:
     def sup_arme(self,indice):
         del self.inventaire[indice]
 
+
+def pile_face():
+    debut = randint(1, 2)
+    return debut
 
 
 #controle input pour tous les inputs, preciser type pour lancer bon try !
@@ -182,6 +185,7 @@ def infos(joueur):
     else :
         print(inv)
 
+
 #liste des sorts
 def list_sorts(tour):
     global liste_att_magic
@@ -239,7 +243,6 @@ def equiper_objet(joueur):
             print("ajout de l'arme échoué")
 
 
-
 #tour d'attaque
 def tour_attaque(joueur):
     print("Liste des attaques disponibles :")
@@ -260,6 +263,7 @@ def tour_attaque(joueur):
 
     print("Vous faites",attaque,"pts de dégats")
     return attaque
+
 
 #tour de magie
 def tour_magie(joueur, tour):
@@ -325,11 +329,22 @@ def liste_choix(j_attaque, tour):
         return liste_choix(j, tour)
 
 
+def commence_tour(commence):
+    if (commence % 2) == 0:
+        nom_debut = 2
+        nom_fin = 1
+        return nom_debut, nom_fin
+    else:
+        nom_debut = 1
+        nom_fin = 2
+        return nom_debut, nom_fin
+
+
 # 1 choix de l'action
 def action(j1,j2,commence):
     tour = 0
     while j1.get_hp() > 0 and j2.get_hp() > 0 :
-        joueur = Duel.commence_tour(commence)
+        joueur = commence_tour(commence)
         if joueur[0] == 1 :
             j_att = j1
             j_def = j2
@@ -370,13 +385,22 @@ def action(j1,j2,commence):
     return tour,hp1,hp2
 
 
+def nom_joueur(name):
+    saisie = input("Quel est le nom du joueur {} ?\n".format(name))
+    if not saisie == "":
+        return saisie
+    else:
+        saisie2 = "Player{}".format(name)
+        return saisie2
+
+
 # Programme principal
 def versus():
     print("version améliorée de Duel !")
     joueur1 = "Papa"
-    joueur2 = Duel.nom_joueur(2)
+    joueur2 = nom_joueur(2)
     print(joueur1,"VERSUS",joueur2)
-    commence = Duel.pile_face()
+    commence = pile_face()
     debut = ("joue en premier.\n")
     j1 = Player(joueur1)
     j2 = Player(joueur2)
