@@ -298,7 +298,7 @@ def tour_magie(joueur, tour, choix_mag):
             ultime = randint(min, max)
             return [ultime, 0]
         else :
-            ultime = randint(min/2, max/2)
+            ultime = randint(min-10, max-10)
             return [ultime, 0]
     else :
         print("Le sort n'a pas fonctionné...")
@@ -429,7 +429,7 @@ def nom_joueur(name):
 # Programme principal
 def versus():
     print("version améliorée de Duel !")
-    joueur1 = "Papa"
+    joueur1 = nom_joueur(1)
     joueur2 = nom_joueur(2)
     print(joueur1,"VERSUS",joueur2)
     commence = pile_face()
