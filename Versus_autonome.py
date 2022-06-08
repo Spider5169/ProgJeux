@@ -21,9 +21,9 @@ liste_attaques = {
     },
     "4": {
         "nom": "Genou",
-        "min": 1,
-        "max": 7,
-        "chance": ""
+        "min": 0,
+        "max": -1,
+        "chance": " - 50% chance de supprimer 1 pts d'armure."
     },
     "5": {
         "nom": "coude",
@@ -45,7 +45,7 @@ liste_att_magic = {
         "nom": "FireBall",
         "min": 10,
         "max": 20,
-        "chance": "- 25% bruler l'ennemi qui fait perdre 1 pt d'armure.",
+        "chance": "- 25% bruler l'ennemi qui fait perdre 2 pt d'armure.",
         "temp": 1,
     },
     "3":{
@@ -122,7 +122,9 @@ class Player:
     def damage(self, dommage):
         if dommage > 0:
             dommage -= self.armure
-            print(dommage,"pts d'attaque moins",self.armure,"pts bloqués par l'armure.")
+            if dommage < 0 :
+                dommage = 0
+            print("moins",self.armure,"pts bloqués par l'armure.\t\t Dégats Finaux :",dommage,"pts.")
         self.hp -= dommage
         return self.hp
 
@@ -202,9 +204,9 @@ def drop(atta, defe):
         print("Vous avez trouvé une arme.")
         atta.add_inventaire(arme,deg_arme_min,deg_arme_max)
     elif 0 < luck < 7 :
-        print(defe.get_nom(),"vient de subir une malédiction")
+        print(defe.get_nom(),"vient de subir une malédiction de",luck,"pts de dégats,")
         defe.damage(luck)
-        print("vous venez de perdre",luck,"pts. Vie restante de",defe.get_nom(),":",defe.get_hp())
+        print("Vie restante de",defe.get_nom(),":",defe.get_hp())
     else :
         print("...Rien de spécial...")
 
@@ -283,13 +285,12 @@ def equiper_objet(joueur, tour):
                 print(j,"a été ajouté.")
                 joueur.sup_arme(j)
                 return
-            else :
-                print("ajout de l'arme échoué")
-                return
+        print("ajout de l'arme échoué")
+        return
 
 
 #tour d'attaque
-def tour_attaque(joueur, tour, att_choisi):
+def tour_attaque(joueur, defenseur, tour, att_choisi):
     global liste_attaques
     attaque = randint((liste_attaques[str(att_choisi)]["min"]+joueur.get_degatmin()),
                       (liste_attaques[str(att_choisi)]["max"]+joueur.get_degatmax()))
@@ -299,6 +300,10 @@ def tour_attaque(joueur, tour, att_choisi):
             attaque = 0
             print("Vous ratez votre cible.",attaque,"pts de dégats.")
             return attaque
+    elif att_choisi == 4 :
+        b = choice([0,1])
+        if b == 1 :
+            defenseur.suppr_armure(1)
 
     print("Vous faites",attaque,"pts de dégats.")
     return attaque
@@ -318,8 +323,8 @@ def tour_magie(joueur, tour, choix_mag):
         if t > 1 :
             return [feu, 0]
         else :
-            print("ATTENTION\t", joueur.get_nom(),"Brule son ennemi, et lui fait perdre 1 pts d'armure")
-            return [feu, 1]
+            print("ATTENTION\t", joueur.get_nom(),"Brule son ennemi, et lui fait perdre 2 pts d'armure")
+            return [feu, 2]
     elif choix_mag == 3 : #glace
         glace = randint(min, max)
         t = choice ([1,2])
@@ -345,7 +350,7 @@ def liste_choix(j_attaque, tour):
     j= j_attaque
     droit_inv = False
     droit_mag = False
-    print(j.get_nom()+", que fais-tu ?")
+    print("\n\t\t",j.get_nom()+", que fais-tu ?")
     print("1 : Consulter ton inventaire")
     if j.get_inventaire() == {}:
         print ("votre inventaire est vide")
@@ -423,7 +428,7 @@ def action(j1,j2,commence):
         choix = liste_choix(j_att, tour)
         text_f = "\n\t\tFin du tour"
         if choix[0] == 3 : #on attaque au càc
-            attaque = tour_attaque(j_att, tour, choix[1])
+            attaque = tour_attaque(j_att, j_def, tour, choix[1])
             j_def.damage(attaque)
             print("Il reste",j_def.get_hp(),"pts de vie à",j_def.get_nom())
             tour += 1
@@ -432,14 +437,19 @@ def action(j1,j2,commence):
         elif choix[0] == 4 : #on utilise la magie
             degat = tour_magie(j_att, tour, choix[1])
             degats = degat[0]
-            tour_sup = degat[1]
+            tour_sup = 0
+            if degat[1] == 1 :
+                tour_sup = degat[1]
+            elif degat[1] == 2 :
+                j_def.suppr_armure(2)
             if degats < 0 :
                 j_att.damage(degats)
                 print (j_att.get_nom(),"s'est soigné de",-degats,"pts de vie,"
                                                                  " il a maintenant",j_att.get_hp(),"pts de vie")
             else :
                 j_def.damage(degats)
-                print(j_def.get_nom(),"subit",degats,"pts de magie, il lui reste",j_def.get_hp(),"pts de vie.")
+                print(j_def.get_nom(),"subit",degats-j_def.get_armure(),
+                      "pts de magie, il lui reste",j_def.get_hp(),"pts de vie.")
             tour += 1
             commence += 1 + tour_sup
             print(text_f,"de magie:", tour, "\n")
