@@ -45,21 +45,21 @@ liste_att_magic = {
         "nom": "FireBall",
         "min": 10,
         "max": 20,
-        "chance": "- aucune",
+        "chance": "- 25% bruler l'ennemi qui fait perdre 1 pt d'armure.",
         "temp": 1,
     },
     "3":{
         "nom": "IceStorm",
         "min": 5,
         "max": 10,
-        "chance": "- Peut geler l'ennemi pour 1 tour",
+        "chance": "- 50% geler l'ennemi pour 1 tour.",
         "temp": randint(1,2),
     },
     "4": {
         "nom": "Spécial",
         "min": 25,
         "max": 50,
-        "chance": "- coup Ultime débloqué",
+        "chance": "- Magie Ultime débloquée, détruit l'armure de l'ennemi.",
         "temp": randint(1, 10),
     },
 }
@@ -67,13 +67,14 @@ liste_att_magic = {
 #création joueur
 class Player:
 
-    def __init__(self, nom, hp=50, inventaire={}, degatmin=0, degatmax=5, degat_magic=3):
+    def __init__(self, nom, hp=50, inventaire={}, degatmin=0, degatmax=5, degat_magic=3, armure=5):
         self.nom = nom
         self.hp = hp
         self.inventaire = inventaire
         self.degatmin = degatmin
         self.degatmax = degatmax
         self.degat_magic = degat_magic
+        self.armure = armure
 
     def get_nom(self):
         return self.nom
@@ -93,6 +94,9 @@ class Player:
     def get_degat_magic(self):
         return self.degat_magic
 
+    def get_armure(self):
+        return self.armure
+
     def add_inventaire(self, objet, min, max):
         self.inventaire[objet]={
             "min": min,
@@ -100,7 +104,25 @@ class Player:
         }
         return self.inventaire
 
+    def add_armure(self, points):
+        self.armure += points
+        print(self.nom,"a maintenant",self.armure,"pts d'armure.")
+        return self.armure
+
+    def suppr_armure(self, point):
+        self.armure -= point
+        print(self.nom,"perd",point,"pts d'armure. Il lui reste",self.armure,"pts d'armure.")
+        return self.armure
+
+    def del_armure(self):
+        self.armure = 0
+        print("L'armure de",self.nom,"est détruite.")
+        return self.armure
+
     def damage(self, dommage):
+        if dommage > 0:
+            dommage -= self.armure
+            print(dommage,"pts d'attaque moins",self.armure,"pts bloqués par l'armure.")
         self.hp -= dommage
         return self.hp
 
@@ -157,17 +179,21 @@ def drop(atta, defe):
     deg_arme_max = 10
     deg_arme_m_min = randint(10,20)
     deg_arme_m_max = randint(20,40)
-    arme_magic = choice(["Gungnïr","Mjolnïr","Soul Calibur",])
-    objet_magic = choice(["Baton Magique", "Book of Spell", "Orbe de Pouvoir"])
+    arme_magic = choice(["Gungnïr","Mjolnïr","Soul Calibur","Sabre Laser"])
+    objet_magic = choice(["Baton Magique", "Book of Spell", "Orbe de Pouvoir","Baguette Magique"])
     degat_magic = randint(5,10)
+    defense = randint(1,5)
     if luck == 7 :
         atta.damage(-50)
         print(atta.get_nom(),"est très CHANCEUX, vous gagnez 50 pts de vie.")
-        atta.add_inventaire("EXCALIBUR", 25, 50)
+        atta.add_inventaire("EXCALIBUR", 35, 50)
         print("Vous trouvez également l'épée Ultime EXCALIBUR.")
     elif 90 < luck < 100 :
         print("Vous avez trouvé une Super Arme.")
         atta.add_inventaire(arme_magic,deg_arme_m_min,deg_arme_m_max)
+    elif 75 < luck < 90 :
+        print("Vous avez ramassé une pièce d'armure.")
+        atta.add_armure(defense)
     elif 25 < luck < 35 :
         print("Vous venez de trouver", objet_magic,"qui vous a automatiquement renforcé de",
               degat_magic,"pts en Magie.")
@@ -190,6 +216,7 @@ def infos(joueur):
           "points de vie et faites [",
           joueur.get_degatmin(), "-", joueur.get_degatmax(),
           "] pts de degats au Corps à Corps.")
+    print("Votre armure est de", joueur.get_armure(),"pts qui bloquent autant de pts de dégats.")
     print("Votre puissance magique est de",joueur.get_degat_magic(),"pts de Magie.\n")
     inv = joueur.get_inventaire()
     if inv == {} :
@@ -204,15 +231,17 @@ def list_sorts(joueur, tour):
     a = 0
     c = 0
     t = tour
+    print()
     for x,y in liste_att_magic.items() :
         a += 1
         b = liste_att_magic[x]["temp"]
         if b == 1 :
             c += 1
             print (a,": sort", liste_att_magic[x]["nom"],
-                       "\tpoints de puissance du sort [",liste_att_magic[x]["min"],"-",liste_att_magic[x]["max"],
+                       "\tpoints de puissance du sort [",liste_att_magic[x]["min"]+joueur.get_degat_magic(),
+                   "-",liste_att_magic[x]["max"]+joueur.get_degat_magic(),
                        "]\tparticularité :",liste_att_magic[x]["chance"])
-    choix = input("Quel sort lasses-tu ?\t")
+    choix = input("Quel sort lances-tu ?\t")
     choix_m = controle_input(choix, c, 1)
     return choix_m
 
@@ -221,6 +250,7 @@ def list_sorts(joueur, tour):
 def liste_attaque(joueur):
     global liste_attaques
     a = 0
+    print()
     for i,j in liste_attaques.items() :
         a += 1
         print(a,": Coup de", liste_attaques[i]["nom"],"[",
@@ -270,7 +300,7 @@ def tour_attaque(joueur, tour, att_choisi):
             print("Vous ratez votre cible.",attaque,"pts de dégats.")
             return attaque
 
-    print("Vous faites",attaque,"pts de dégats")
+    print("Vous faites",attaque,"pts de dégats.")
     return attaque
 
 
@@ -284,7 +314,12 @@ def tour_magie(joueur, tour, choix_mag):
         return [soin, 0]
     elif choix_mag == 2 : #feu
         feu = randint(min, max)
-        return [feu, 0]
+        t = choice([1,4])
+        if t > 1 :
+            return [feu, 0]
+        else :
+            print("ATTENTION\t", joueur.get_nom(),"Brule son ennemi, et lui fait perdre 1 pts d'armure")
+            return [feu, 1]
     elif choix_mag == 3 : #glace
         glace = randint(min, max)
         t = choice ([1,2])
@@ -429,8 +464,8 @@ def nom_joueur(name):
 # Programme principal
 def versus():
     print("version améliorée de Duel !")
-    joueur1 = nom_joueur(1)
-    joueur2 = nom_joueur(2)
+    joueur1 = "Papa"
+    joueur2 = "nom_joueur(2)"
     print(joueur1,"VERSUS",joueur2)
     commence = pile_face()
     debut = ("joue en premier.\n")
