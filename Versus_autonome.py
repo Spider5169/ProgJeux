@@ -3,20 +3,32 @@ from random import *
 liste_attaques = {
     "1": {
         "nom": "poing",
-        "min": 2,
-        "max": 4,
+        "min": 3,
+        "max": 5,
         "chance": ""
     },
     "2": {
         "nom": "pied",
-        "min": 0,
+        "min": 2,
         "max": 6,
         "chance": ""
     },
     "3": {
         "nom": "tête",
-        "min": 5,
-        "max": 5,
+        "min": 6,
+        "max": 3,
+        "chance": " - 50% de chance de réussir",
+    },
+    "4": {
+        "nom": "Genou",
+        "min": 1,
+        "max": 7,
+        "chance": ""
+    },
+    "5": {
+        "nom": "coude",
+        "min": 0,
+        "max": 8,
         "chance": " - 50% de chance de réussir",
     },
 }
@@ -116,7 +128,7 @@ def controle_input(entree, nombre, type_attendu=1):
     if type_attendu == 1 : #int
         try :
             entree1 = int(entree)
-            if 0 < entree1 <= nombre:
+            if 0 <= entree1 <= nombre:
                 return entree1
             else :
                 print("Vous n'avez pas choisi un élément dans la liste.")
@@ -187,7 +199,7 @@ def infos(joueur):
 
 
 #liste des sorts
-def list_sorts(tour):
+def list_sorts(joueur, tour):
     global liste_att_magic
     a = 0
     c = 0
@@ -196,15 +208,13 @@ def list_sorts(tour):
         a += 1
         b = liste_att_magic[x]["temp"]
         if b == 1 :
+            c += 1
             print (a,": sort", liste_att_magic[x]["nom"],
                        "\tpoints de puissance du sort [",liste_att_magic[x]["min"],"-",liste_att_magic[x]["max"],
                        "]\tparticularité :",liste_att_magic[x]["chance"])
     choix = input("Quel sort lasses-tu ?\t")
-    choix_m = controle_input(choix, a, 1)
-    if choix_m == False :
-        return list_sorts(tour)
-    else :
-        return choix_m
+    choix_m = controle_input(choix, c, 1)
+    return choix_m
 
 
 #liste les attaques dispo
@@ -221,40 +231,39 @@ def liste_attaque(joueur):
 
 
 #equiper objet
-def equiper_objet(joueur):
+def equiper_objet(joueur, tour):
     a = 0
+    print("0 : Retour")
     for i in joueur.get_inventaire() :
         a += 1
         print(a,":",i)
     b = 0
     armes = input ("Quelle arme voulez-vous équiper ?")
     arme = controle_input(armes, a, 1)
-    dico = joueur.get_inventaire()
-    for j,k in dico.items() :
-        b += 1
-        if b == arme :
-            d_min = dico[j]["min"]
-            d_max = dico[j]["max"]
-            joueur.equip(d_min,d_max)
-            print(j,"a été ajouté.")
-            joueur.sup_arme(j)
-            return joueur
-        else :
-            print("ajout de l'arme échoué")
+    if arme == 0 :
+        return "retour"
+    else :
+        dico = joueur.get_inventaire()
+        for j,k in dico.items() :
+            b += 1
+            if b == arme :
+                d_min = dico[j]["min"]
+                d_max = dico[j]["max"]
+                joueur.equip(d_min,d_max)
+                print(j,"a été ajouté.")
+                joueur.sup_arme(j)
+                return
+            else :
+                print("ajout de l'arme échoué")
+                return
 
 
 #tour d'attaque
-def tour_attaque(joueur):
-    print("Liste des attaques disponibles :")
-    a = liste_attaque(joueur)
-    choix = input("Choix de l'attaque :\t")
-    choix_int = controle_input(choix, a, 1)
-    if choix_int == False :
-        return tour_attaque(joueur)
-
-    attaque = randint((liste_attaques[choix]["min"]+joueur.get_degatmin()),
-                      (liste_attaques[choix]["max"]+joueur.get_degatmax()))
-    if choix_int == 3 :
+def tour_attaque(joueur, tour, att_choisi):
+    global liste_attaques
+    attaque = randint((liste_attaques[str(att_choisi)]["min"]+joueur.get_degatmin()),
+                      (liste_attaques[str(att_choisi)]["max"]+joueur.get_degatmax()))
+    if att_choisi == 3 or att_choisi == 5 :
         b = choice([0,1])
         if b == 0 :
             attaque = 0
@@ -266,9 +275,7 @@ def tour_attaque(joueur):
 
 
 #tour de magie
-def tour_magie(joueur, tour):
-    print("Liste des Sorts disponibles :")
-    choix_mag = list_sorts(tour)
+def tour_magie(joueur, tour, choix_mag):
     min = liste_att_magic[str(choix_mag)]["min"] + joueur.get_degat_magic()
     max = liste_att_magic[str(choix_mag)]["max"] + joueur.get_degat_magic()
     if choix_mag == 1 :
@@ -284,11 +291,15 @@ def tour_magie(joueur, tour):
         if t == 1 :
             return [glace, 0]
         else :
-            print("ATTENTION\t",joueur,"gel son ennemi, et lui fait perdre 1 tour !!!")
+            print("ATTENTION\t",joueur.get_nom(),"gel son ennemi, et lui fait perdre 1 tour !!!")
             return [glace, 1]
     elif choix_mag == 4 : # Ultime
-        ultime = randint(min, max)
-        return [ultime, 0]
+        if tour >= 8 :
+            ultime = randint(min, max)
+            return [ultime, 0]
+        else :
+            ultime = randint(min/2, max/2)
+            return [ultime, 0]
     else :
         print("Le sort n'a pas fonctionné...")
         return 0
@@ -318,13 +329,34 @@ def liste_choix(j_attaque, tour):
         infos(j)
         return liste_choix(j, tour)
     elif choix_act == 2 and droit_inv :
-        equiper_objet(j)
-        print("S'equiper d'un objet termine votre tour.")
-        return
+        equip = equiper_objet(j, tour)
+        if equip == "retour" :
+            return liste_choix(j, tour)
+        else :
+            print("S'equiper d'un objet termine votre tour.")
+            return [2, tour]
     elif choix_act == 3 :
-        return 3
+        print("Liste des attaques disponibles :")
+        print("0 : Retour")
+        a = liste_attaque(j_attaque)
+        choix = input("Choix de l'attaque :\t")
+        choix_int = controle_input(choix, a, 1)
+        if choix_int == 0:
+            return liste_choix(j_attaque, tour)
+        elif choix_int == False:
+            return liste_choix(j_attaque, tour)
+        else :
+            return [3, choix_int]
     elif choix_act == 4 and droit_mag:
-        return 4
+        print("Liste des Sorts disponibles :")
+        print("0 : Retour")
+        choix_mag = list_sorts(j_attaque, tour)
+        if choix_mag == 0:
+            return liste_choix(j_attaque, tour)
+        elif choix_mag == False :
+            return liste_choix(j_attaque, tour)
+        else :
+            return [4, choix_mag]
     else :
         return liste_choix(j, tour)
 
@@ -355,15 +387,15 @@ def action(j1,j2,commence):
         drop (j_att,j_def)
         choix = liste_choix(j_att, tour)
         text_f = "\n\t\tFin du tour"
-        if choix == 3 : #on attaque au càc
-            attaque = tour_attaque(j_att)
+        if choix[0] == 3 : #on attaque au càc
+            attaque = tour_attaque(j_att, tour, choix[1])
             j_def.damage(attaque)
             print("Il reste",j_def.get_hp(),"pts de vie à",j_def.get_nom())
             tour += 1
             commence += 1
             print(text_f,"d'attaque :", tour, "\n")
-        elif choix == 4 : #on utilise la magie
-            degat = tour_magie(j_att, tour)
+        elif choix[0] == 4 : #on utilise la magie
+            degat = tour_magie(j_att, tour, choix[1])
             degats = degat[0]
             tour_sup = degat[1]
             if degats < 0 :
