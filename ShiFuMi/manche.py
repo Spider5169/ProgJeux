@@ -16,3 +16,4 @@ def manche(choix_joueur, choix_ordi):
     elif choix_ordi > choix_joueur:
         print("La manche est remportée par la MACHINE !")
         score.score(2)
+

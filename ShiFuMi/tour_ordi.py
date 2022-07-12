@@ -14,5 +14,6 @@ def get_choix_ordi() :
     pass
 
 
+
 if __name__ == "__main__":
     tour_ordi()

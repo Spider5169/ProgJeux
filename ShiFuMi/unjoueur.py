@@ -21,5 +21,6 @@ def partie():
 
 
 
+
 if __name__ == '__main__' :
     partie()

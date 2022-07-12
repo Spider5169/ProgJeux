@@ -29,3 +29,4 @@ def voir_score():
         return nom_joueur
     elif ordi == 2 :
         return nom_ordi
+
