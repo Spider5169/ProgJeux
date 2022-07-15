@@ -4,7 +4,7 @@ ordi = 0
 
 def score(resultat):
     global joueur, ordi
-    print("on met à jour le tableau des scores ici")
+    #print("on met à jour le tableau des scores ici")
     if resultat == 1 :
         joueur += 1
     elif resultat == 2 :
@@ -19,7 +19,7 @@ def voir_score():
     nom_jo = round(len(nom_joueur)/2)
     nom_o = len(nom_ordi)+2
     nom_or = round (len(nom_ordi)/2)
-    print("on affiche le tableau ici")
+    #print("on affiche le tableau ici")
     print("| ","_"*nom_j,"|","_"*nom_o," |")
     print("|  ",nom_joueur," | ",nom_ordi,"  |")
     print("| ","_"*nom_j,"|","_"*nom_o," |")
