@@ -1,4 +1,6 @@
 from random import random
+
+import controle
 import tour_ordi, tour_joueur, score, manche
 
 
@@ -16,6 +18,8 @@ def partie():
         if result == 0:
             round -= 1
         nom = score.voir_score()
+
+
     print("\n\t Fin de la Partie\n")
     print("on affiche le vainqueur ici :", nom)
 

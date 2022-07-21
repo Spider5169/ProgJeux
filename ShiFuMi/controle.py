@@ -10,3 +10,15 @@ def controle(entree) :
 
     else :
         return entier
+
+
+def controle_win(test):
+    try :
+        nom_gagnant = str(test)
+
+    except :
+        print("Après vérification, il n'y a pas encore de gagnant.")
+        return False
+
+    else :
+        return nom_gagnant
