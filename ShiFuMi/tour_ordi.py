@@ -10,9 +10,6 @@ def tour_ordi():
     elif choix == 3 :
         return 3
 
-def get_choix_ordi() :
-    pass
-
 
 
 if __name__ == "__main__":

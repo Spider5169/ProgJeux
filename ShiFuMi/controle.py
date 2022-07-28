@@ -1,4 +1,4 @@
-import tour_joueur
+
 
 def controle(entree) :
     try :
@@ -9,16 +9,9 @@ def controle(entree) :
         return False
 
     else :
-        return entier
+        if 0 < entier <4 :
+            return entier
+        else :
+            return False
 
 
-def controle_win(test):
-    try :
-        nom_gagnant = str(test)
-
-    except :
-        print("Après vérification, il n'y a pas encore de gagnant.")
-        return False
-
-    else :
-        return nom_gagnant
