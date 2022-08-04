@@ -1,3 +1,4 @@
+import controle
 
 
 def nom_joueur(numero):
@@ -9,6 +10,9 @@ def nom_joueur(numero):
 
 def nb_manche():
     manche = input("En combien de victoire voulez-vous jouer ?")
-    if manche == "" :
+    manche = controle.controle2(manche)
+    if manche == False:
+        return nb_manche()
+    elif manche == "" :
         manche = 2
     return manche

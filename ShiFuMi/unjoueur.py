@@ -8,11 +8,12 @@ def partie():
     print("La partie Commence, c'est en",nb_manche_win,"manches gagnantes.")
     round = 0
     gagne = True
-    while gagne :
+    while gagne == True:
         round += 1
         print("Manche",round,"en cours :")
         choix_ordi = tour_ordi.tour_ordi()
-        print (choix_ordi)
+        # utile pour faire des tests
+        #print (choix_ordi)
         choix_joueur = tour_joueur.tour_joueur()
         print(choix_joueur)
         result = manche.manche(choix_joueur,choix_ordi, j1, j2)

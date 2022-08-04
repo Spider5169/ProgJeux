@@ -15,3 +15,13 @@ def controle(entree) :
             return False
 
 
+def controle2(entree) :
+    try :
+        entree = int(entree)
+
+    except:
+        print("Vous n'avez pas saisie un choix valide.")
+        return False
+
+    else :
+        return entree
