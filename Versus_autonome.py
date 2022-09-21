@@ -190,19 +190,19 @@ def drop(atta, defe):
     arme_magic = choice(["Gungnïr","Mjolnïr","Soul Calibur","Sabre Laser"])
     objet_magic = choice(["Baton Magique", "Book of Spell", "Orbe de Pouvoir","Baguette Magique"])
     degat_magic = randint(5,10)
-    defense = randint(1,5)
+    defense = randint(2,6)
     if luck == 7 :
         atta.damage(-50)
         print(atta.get_nom(),"est très CHANCEUX, vous gagnez 50 pts de vie.")
         atta.add_inventaire("EXCALIBUR", 35, 50)
         print("Vous trouvez également l'épée Ultime EXCALIBUR.")
-    elif 85 < luck < 100 :
+    elif 80 < luck < 100 :
         print("Vous avez trouvé une Super Arme.")
         atta.add_inventaire(arme_magic,deg_arme_m_min,deg_arme_m_max)
-    elif 70 < luck < 85 :
+    elif 60 < luck < 80 :
         print("Vous avez ramassé une pièce d'armure.")
         atta.add_armure(defense)
-    elif 25 < luck < 40 :
+    elif 25 < luck < 50 :
         print("Vous venez de trouver", objet_magic,"qui vous a automatiquement renforcé de",
               degat_magic,"pts en Magie.")
         atta.equip_magic(degat_magic)
@@ -210,8 +210,9 @@ def drop(atta, defe):
         print("Vous avez trouvé une arme.")
         atta.add_inventaire(arme,deg_arme_min,deg_arme_max)
     elif 0 < luck < 7 :
-        print(defe.get_nom(),"vient de subir une malédiction de",luck,"pts de dégats,")
-        defe.damage(luck)
+        luck1 = luck + 5
+        print(defe.get_nom(),"vient de subir une malédiction de",luck1,"pts de dégats,")
+        defe.damage(luck1)
         print("Vie restante de",defe.get_nom(),":",defe.get_hp())
     else :
         print("...Rien de spécial...")
